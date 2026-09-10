@@ -54,12 +54,17 @@ function filtered() {
 
 function renderList() {
   const data = filtered();
-  $("recordList").innerHTML = data.map(r=>`
+  const header = `
+    <div class="record-header" aria-hidden="true">
+      <span>작성일</span><span>분류</span><span>제목</span>
+    </div>`;
+  const rows = data.map(r=>`
     <button class="record-card" data-id="${esc(r.id)}">
-      <span class="record-date">${esc(r.date || "")}</span>
+      <span class="record-date">${esc(formatDate(r.date))}</span>
       <span class="category">${esc(r.category || "")}</span>
       <span class="record-title">${esc(r.title||"제목 없음")}</span>
     </button>`).join("");
+  $("recordList").innerHTML = data.length ? header + rows : "";
   $("emptyState").hidden = data.length !== 0;
 }
 

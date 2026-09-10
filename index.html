@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111827">
-<title>기록</title>
+<title>기록장</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="app">
-<header class="topbar"><h1>기록</h1><div class="top-actions"><button id="settingsBtn" class="icon-btn" aria-label="백업 설정" title="백업 설정">⚙</button><button id="newBtn" class="icon-btn" aria-label="새 기록">＋</button></div></header>
+<header class="topbar"><h1>기록장</h1><div class="top-actions"><button id="settingsBtn" class="icon-btn" aria-label="백업 설정" title="백업 설정">⚙</button><button id="newBtn" class="icon-btn" aria-label="새 기록">＋</button></div></header>
 <main>
 <section class="toolbar"><input id="searchInput" type="search" placeholder="제목, 내용, 메모 검색"><div id="categoryBar" class="chips"></div></section>
 <section id="recordList" class="record-list"></section><div id="emptyState" class="empty" hidden>기록이 없습니다.</div>
@@ -26,7 +26,27 @@
 <label>내용<textarea id="contentInput" rows="9" placeholder="내용을 입력하세요"></textarea></label>
 <label>메모<textarea id="memoInput" rows="3" placeholder="메모"></textarea></label>
 </form></dialog>
-<dialog id="settingsDialog"><form id="settingsForm" class="settings-form"><div class="editor-header"><button type="button" id="settingsCancelBtn" class="text-btn">취소</button><h2>백업 설정</h2><button type="submit" class="save-btn">저장</button></div><p class="settings-help">Google 계정을 바꾸거나 다른 백업 시트를 사용하려면, 해당 Google 계정으로 배포한 Apps Script 웹 앱 주소를 입력하세요.</p><label>백업 연결 주소<input id="apiUrlInput" type="url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off"></label><label>계정 메모(선택)<input id="accountLabelInput" type="text" maxlength="50" placeholder="예: 개인 Google 계정"></label><div class="settings-status" id="settingsStatus"></div><button type="button" id="testBackupBtn" class="secondary-btn settings-test">연결 테스트</button></form></dialog>
-<dialog id="detailDialog"><div class="detail"><div class="editor-header"><button id="detailCloseBtn" class="text-btn">닫기</button><h2>기록</h2><span></span></div><div id="detailBody"></div><div class="detail-actions"><button id="editBtn" class="secondary-btn">수정</button><button id="deleteBtn" class="danger-btn">삭제</button></div></div></dialog>
-<script src="app.js?v=8"></script>
+<dialog id="settingsDialog"><form id="settingsForm" class="settings-form">
+<div class="editor-header"><button type="button" id="settingsCancelBtn" class="text-btn">취소</button><h2>백업 설정</h2><button type="submit" class="save-btn">저장</button></div>
+<section class="backup-card">
+  <h3>Google 계정으로 백업</h3>
+  <p class="settings-help">Google 계정을 연결하면 내 Google Drive에서 백업할 Google Sheets를 직접 선택할 수 있습니다.</p>
+  <label>Google OAuth 클라이언트 ID<input id="googleClientIdInput" type="text" placeholder="예: 1234567890-xxxx.apps.googleusercontent.com" autocomplete="off"></label>
+  <button type="button" id="googleConnectBtn" class="primary-btn">Google 계정 선택</button>
+  <div class="google-account" id="googleAccountInfo"></div>
+  <label>백업할 Google Sheet<select id="sheetSelect"><option value="">먼저 Google 계정을 선택하세요</option></select></label>
+  <button type="button" id="refreshSheetsBtn" class="secondary-btn settings-test">내 Google Sheets 새로고침</button>
+</section>
+<section class="backup-card secondary-backup">
+  <h3>기존 Apps Script 백업</h3>
+  <p class="settings-help">Google OAuth를 사용하지 않고 기존 방식으로 연결할 수도 있습니다.</p>
+  <label>백업 연결 주소<input id="apiUrlInput" type="url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off"></label>
+  <label>계정 메모(선택)<input id="accountLabelInput" type="text" maxlength="50" placeholder="예: 개인 Google 계정"></label>
+  <button type="button" id="testBackupBtn" class="secondary-btn settings-test">연결 테스트</button>
+</section>
+<div class="settings-status" id="settingsStatus"></div>
+</form></dialog>
+<dialog id="detailDialog"><div class="detail"><div class="editor-header"><button id="detailCloseBtn" class="text-btn">닫기</button><h2>기록장</h2><span></span></div><div id="detailBody"></div><div class="detail-actions"><button id="editBtn" class="secondary-btn">수정</button><button id="deleteBtn" class="danger-btn">삭제</button></div></div></dialog>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="app.js?v=9"></script>
 </body></html>

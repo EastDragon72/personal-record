@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>기록</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+<header class="topbar"><h1>기록</h1><button id="newBtn" class="icon-btn">＋</button></header>
+<main>
+<section class="toolbar"><input id="searchInput" type="search" placeholder="제목, 내용, 메모 검색"><div id="categoryBar" class="chips"></div></section>
+<section id="recordList" class="record-list"></section><div id="emptyState" class="empty" hidden>기록이 없습니다.</div>
+</main>
+</div>
+<dialog id="editorDialog"><form id="recordForm" class="editor">
+<div class="editor-header"><button type="button" id="cancelBtn" class="text-btn">취소</button><h2 id="editorTitle">기록 작성</h2><button type="submit" class="save-btn">저장</button></div>
+<input type="hidden" id="recordId">
+<label>작성일<input id="dateInput" type="date" required></label>
+<label>분류<input id="categoryInput" list="categoryOptions" placeholder="기존 분류 선택 또는 신규 입력" required><datalist id="categoryOptions"></datalist></label>
+<label>제목<input id="titleInput" maxlength="100" placeholder="제목"></label>
+<label>내용<textarea id="contentInput" rows="9" placeholder="내용을 입력하세요"></textarea></label>
+<label>메모<textarea id="memoInput" rows="3" placeholder="메모"></textarea></label>
+</form></dialog>
+<dialog id="detailDialog"><div class="detail"><div class="editor-header"><button id="detailCloseBtn" class="text-btn">닫기</button><h2>기록</h2><span></span></div><div id="detailBody"></div><div class="detail-actions"><button id="editBtn" class="secondary-btn">수정</button><button id="deleteBtn" class="danger-btn">삭제</button></div></div></dialog>
+<script src="app.js"></script>
+</body></html>

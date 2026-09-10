@@ -17,7 +17,7 @@ function today() {
   return new Date(d.getTime()-offset*60000).toISOString().slice(0,10);
 }
 function esc(v="") { return v.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c])); }
-function formatDate(v) { return v ? v.replaceAll("-",".") : ""; }
+function formatDate(v) { return v || ""; }
 function cats() { return [...new Set(records.map(r=>r.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ko")); }
 
 async function api(action, data={}) {
@@ -56,9 +56,9 @@ function renderList() {
   const data = filtered();
   $("recordList").innerHTML = data.map(r=>`
     <button class="record-card" data-id="${esc(r.id)}">
-      <div class="card-meta"><span class="category">${esc(r.category)}</span><span>·</span><span>${formatDate(r.date)}</span></div>
-      <h3 class="record-title">${esc(r.title||"제목 없음")}</h3>
-      <div class="record-preview">${esc(r.content||r.memo||"내용 없음")}</div>
+      <span class="record-date">${esc(r.date || "")}</span>
+      <span class="category">${esc(r.category || "")}</span>
+      <span class="record-title">${esc(r.title||"제목 없음")}</span>
     </button>`).join("");
   $("emptyState").hidden = data.length !== 0;
 }

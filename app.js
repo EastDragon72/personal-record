@@ -22,12 +22,22 @@ function cats() { return [...new Set(records.map(r=>r.category).filter(Boolean))
 
 async function api(action, data={}) {
   if (!API_URL) return null;
-  const params = new URLSearchParams({ action });
-  Object.entries(data || {}).forEach(([k,v]) => params.set(k, v ?? ""));
-  const res = await fetch(API_URL + "?" + params.toString(), {
-    method: "GET",
-    cache: "no-store",
-    redirect: "follow"
+  if (action === "create" || action === "update" || action === "delete") {
+    const params = new URLSearchParams({ action });
+    Object.entries(data || {}).forEach(([k,v]) => params.set(k, v ?? ""));
+    params.set("_", Date.now().toString());
+    const url = API_URL + "?" + params.toString();
+    await new Promise(resolve => {
+      const img = new Image();
+      const timer = setTimeout(() => { img.src = ""; resolve(); }, 5000);
+      img.onload = () => { clearTimeout(timer); resolve(); };
+      img.onerror = () => { clearTimeout(timer); resolve(); };
+      img.src = url;
+    });
+    return {success:true};
+  }
+  const res = await fetch(API_URL + "?action=list&_=" + Date.now(), {
+    method: "GET", cache: "no-store", redirect: "follow"
   });
   if (!res.ok) throw new Error("Google Sheets 서버 응답 오류 (" + res.status + ")");
   const out = await res.json();
@@ -40,6 +50,19 @@ async function syncList() {
   const out = await api("list");
   records = out.data || [];
   saveLocal();
+}
+
+async function verifyServerRecord(id, shouldExist=true) {
+  if (!API_URL) return true;
+  for (let i=0; i<4; i++) {
+    await new Promise(r=>setTimeout(r, 600));
+    try {
+      const out = await api("list");
+      const found = (out.data || []).some(r => String(r.id) === String(id));
+      if (found === shouldExist) return true;
+    } catch (_) {}
+  }
+  return false;
 }
 
 function renderCategories() {
@@ -124,7 +147,11 @@ $("recordForm").onsubmit=async e=>{
   if(!data.category)return alert("분류를 입력해주세요.");
   if(!data.title&&!data.content&&!data.memo)return alert("제목, 내용 또는 메모 중 하나는 입력해주세요.");
   try {
-    if(usingApi) await api(id?"update":"create",data);
+    if(usingApi) {
+      await api(id?"update":"create",data);
+      const ok = await verifyServerRecord(data.id, true);
+      if(!ok) throw new Error("Google Sheets에 저장된 기록을 확인하지 못했습니다. 잠시 후 다시 시도해주세요.");
+    }
     if(id) records=records.map(r=>r.id===id?data:r); else records.push(data);
     saveLocal(); $("editorDialog").close(); render();
   } catch(err) { alert("저장 실패: "+err.message); }
@@ -137,7 +164,11 @@ $("deleteBtn").onclick=async()=>{
   const r=records.find(x=>x.id===selectedId); if(!r)return;
   if(!confirm(`"${r.title||"제목 없음"}" 기록을 삭제할까요?`))return;
   try {
-    if(usingApi) await api("delete",{id:r.id});
+    if(usingApi) {
+      await api("delete",{id:r.id});
+      const ok = await verifyServerRecord(r.id, false);
+      if(!ok) throw new Error("Google Sheets에서 삭제된 것을 확인하지 못했습니다. 잠시 후 다시 시도해주세요.");
+    }
     records=records.filter(x=>x.id!==selectedId); saveLocal(); $("detailDialog").close(); render();
   } catch(err){ alert("삭제 실패: "+err.message); }
 };

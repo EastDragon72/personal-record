@@ -22,9 +22,14 @@ function cats() { return [...new Set(records.map(r=>r.category).filter(Boolean))
 
 async function api(action, data={}) {
   if (!API_URL) return null;
-  const payload = {...data, action};
-  const opts = action === "list" ? {} : {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload)};
-  const res = await fetch(API_URL + (action==="list" ? "?action=list" : ""), opts);
+  const params = new URLSearchParams({ action });
+  Object.entries(data || {}).forEach(([k,v]) => params.set(k, v ?? ""));
+  const res = await fetch(API_URL + "?" + params.toString(), {
+    method: "GET",
+    cache: "no-store",
+    redirect: "follow"
+  });
+  if (!res.ok) throw new Error("Google Sheets 서버 응답 오류 (" + res.status + ")");
   const out = await res.json();
   if (!out.success) throw new Error(out.message || "서버 오류");
   return out;

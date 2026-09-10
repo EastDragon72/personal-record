@@ -23,20 +23,16 @@ main { max-width: 900px; margin: 0 auto; padding: 16px; }
 .record-card {
   width: 100%;
   display: grid;
-  grid-template-columns: 72px 72px minmax(0, 1fr);
+  grid-template-columns: 100px 100px minmax(0, 1fr);
   align-items: center;
   text-align: left;
   border: 0;
   border-bottom: 1px solid #e5e7eb;
   background: white;
   border-radius: 0;
-  padding: 9px 8px;
-  min-height: 40px;
+  padding: 7px 8px;
+  min-height: 38px;
   box-shadow: none;
-}
-
-.record-card:active {
-  transform: none;
 }
 
 .card-meta {
@@ -44,19 +40,6 @@ main { max-width: 900px; margin: 0 auto; padding: 16px; }
   margin: 0;
   font-size: 12px;
   color: #6b7280;
-}
-
-.card-meta .date {
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.category {
-  color: #111827;
-  font-weight: 600;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 .record-title {
@@ -72,6 +55,7 @@ main { max-width: 900px; margin: 0 auto; padding: 16px; }
 .record-preview {
   display: none;
 }
+
 .record-card:active { transform: scale(.995); }
 .card-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; color: #6b7280; font-size: 13px; }
 .category { color: #111827; font-weight: 700; }

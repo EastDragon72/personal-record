@@ -1,4 +1,4 @@
-const API_URL = localStorage.getItem("record-api-url") || "";
+let API_URL = localStorage.getItem("record-api-url") || "";
 const STORAGE_KEY = "personal-records-v2";
 
 let records = loadLocal();
@@ -80,6 +80,7 @@ function resetForm(r=null) {
   $("editorTitle").textContent=r?"기록 수정":"기록 작성";
 }
 function openEditor(r=null){ resetForm(r); $("editorDialog").showModal(); }
+function openSettings(){ $("apiUrlInput").value=localStorage.getItem("record-api-url") || ""; $("settingsDialog").showModal(); }
 
 async function openDetail(id) {
   selectedId=id; const r=records.find(x=>x.id===id); if(!r)return;
@@ -93,6 +94,8 @@ async function openDetail(id) {
 }
 
 $("newBtn").onclick=()=>openEditor();
+$("settingsBtn").onclick=()=>openSettings();
+$("settingsCancelBtn").onclick=()=>$("settingsDialog").close();
 $("cancelBtn").onclick=()=>$("editorDialog").close();
 $("detailCloseBtn").onclick=()=>$("detailDialog").close();
 $("searchInput").oninput=renderList;
@@ -103,6 +106,24 @@ $("categoryBar").onclick=e=>{
 };
 $("recordList").onclick=e=>{
   const b=e.target.closest("[data-id]"); if(b)openDetail(b.dataset.id);
+};
+
+$("settingsForm").onsubmit=async e=>{
+  e.preventDefault();
+  const url=$("apiUrlInput").value.trim();
+  if(url) localStorage.setItem("record-api-url", url);
+  else localStorage.removeItem("record-api-url");
+  API_URL = url;
+  usingApi = !!url;
+  try {
+    if(usingApi) await syncList();
+    $("settingsDialog").close();
+    render();
+    alert(usingApi ? "Google Sheets 연결이 설정되었습니다." : "로컬 저장 모드로 설정되었습니다.");
+  } catch(err) {
+    usingApi=false;
+    alert("Google Sheets 연결 실패: "+err.message);
+  }
 };
 
 $("recordForm").onsubmit=async e=>{

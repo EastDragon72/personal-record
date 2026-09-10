@@ -1,4 +1,8 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbzxa18PFnkhZ4iaj6x17ekbOFhMZTkPJH33uZx1wM1ebjWIsA_wuPFNtCJEcZjVjgbxLA/exec";
+const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbzxa18PFnkhZ4iaj6x17ekbOFhMZTkPJH33uZx1wM1ebjWIsA_wuPFNtCJEcZjVjgbxLA/exec";
+const API_URL_KEY = "personal-record-api-url";
+const ACCOUNT_LABEL_KEY = "personal-record-account-label";
+let API_URL = localStorage.getItem(API_URL_KEY) || DEFAULT_API_URL;
+let accountLabel = localStorage.getItem(ACCOUNT_LABEL_KEY) || "";
 const STORAGE_KEY = "personal-records-v2";
 
 let records = loadLocal();
@@ -106,6 +110,50 @@ async function openDetail(id) {
     ${r.memo?`<div class="detail-section"><strong>메모</strong><div class="detail-memo">${esc(r.memo)}</div></div>`:""}`;
   $("detailDialog").showModal();
 }
+
+function openSettings(){
+  $("apiUrlInput").value = API_URL || "";
+  $("accountLabelInput").value = accountLabel;
+  $("settingsStatus").textContent = API_URL ? `현재 백업: ${accountLabel || "연결된 Google Sheet"}` : "백업 연결 안 됨";
+  $("settingsDialog").showModal();
+}
+
+$("settingsBtn").onclick=openSettings;
+$("settingsCancelBtn").onclick=()=>$("settingsDialog").close();
+$("testBackupBtn").onclick=async()=>{
+  const url=$("apiUrlInput").value.trim();
+  if(!url){ $("settingsStatus").textContent="백업 연결 주소를 입력해주세요."; return; }
+  $("settingsStatus").textContent="연결 확인 중...";
+  try{
+    const res=await fetch(url+"?action=list&_="+Date.now(),{cache:"no-store"});
+    const out=await res.json();
+    if(!out.success) throw new Error(out.message||"서버 오류");
+    $("settingsStatus").textContent=`연결 성공 · 백업 기록 ${out.data?.length||0}건`;
+  }catch(err){ $("settingsStatus").textContent="연결 실패: "+err.message; }
+};
+
+$("settingsForm").onsubmit=async e=>{
+  e.preventDefault();
+  const url=$("apiUrlInput").value.trim().replace(/\/$/,"");
+  const label=$("accountLabelInput").value.trim();
+  if(url && !/^https:\/\/script\.google\.com\/macros\/s\/[^\s]+\/exec$/.test(url)){
+    alert("Apps Script 웹 앱의 /exec 주소를 입력해주세요."); return;
+  }
+  if(url===API_URL){
+    accountLabel=label; localStorage.setItem(ACCOUNT_LABEL_KEY,accountLabel);
+    $("settingsDialog").close(); return;
+  }
+  if(!confirm("백업 대상을 바꾸면 선택한 Google Sheet의 기록을 새 백업 목록으로 불러옵니다. 변경할까요?")) return;
+  try{
+    if(!url){ API_URL=""; accountLabel=label; localStorage.removeItem(API_URL_KEY); localStorage.setItem(ACCOUNT_LABEL_KEY,accountLabel); usingApi=false; render(); $("settingsDialog").close(); return; }
+    const res=await fetch(url+"?action=list&_="+Date.now(),{cache:"no-store"});
+    const out=await res.json();
+    if(!out.success) throw new Error(out.message||"서버 오류");
+    API_URL=url; accountLabel=label; localStorage.setItem(API_URL_KEY,API_URL); localStorage.setItem(ACCOUNT_LABEL_KEY,accountLabel); usingApi=true;
+    records=out.data||[]; saveLocal(); render(); $("settingsDialog").close();
+    alert(`백업 대상을 변경했습니다. ${records.length}건을 불러왔습니다.`);
+  }catch(err){ alert("백업 대상 변경 실패: "+err.message); }
+};
 
 $("newBtn").onclick=()=>openEditor();
 $("cancelBtn").onclick=()=>$("editorDialog").close();

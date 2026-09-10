@@ -105,3 +105,11 @@ dialog::backdrop { background: rgba(0,0,0,.35); backdrop-filter: blur(2px); }
   }
   .record-card { padding-left: 6px; padding-right: 6px; }
 }
+
+.top-actions{display:flex;align-items:center;gap:4px}
+.settings-form{width:min(92vw,520px);padding:0 18px 20px;box-sizing:border-box}
+.settings-help{margin:8px 0 16px;color:#6b7280;font-size:13px;line-height:1.6}
+.settings-form label{display:block;margin:12px 0;color:#374151;font-size:13px;font-weight:700}
+.settings-form input{display:block;width:100%;box-sizing:border-box;margin-top:6px;padding:11px 12px;border:1px solid #d1d5db;border-radius:10px;font:inherit;background:white}
+.settings-status{min-height:20px;margin:10px 0;color:#6b7280;font-size:12px;line-height:1.5;word-break:break-all}
+.settings-test{width:100%;margin-top:4px}

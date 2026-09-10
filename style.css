@@ -14,6 +14,7 @@ main { max-width: 900px; margin: 0 auto; padding: 16px; }
 .chips::-webkit-scrollbar { display: none; }
 .chip { flex: 0 0 auto; border: 1px solid #d1d5db; background: white; border-radius: 999px; padding: 8px 13px; }
 .chip.active { background: #111827; color: white; border-color: #111827; }
+
 .record-list {
   display: flex;
   flex-direction: column;
@@ -25,6 +26,7 @@ main { max-width: 900px; margin: 0 auto; padding: 16px; }
   display: grid;
   grid-template-columns: 100px 100px minmax(0, 1fr);
   align-items: center;
+  gap: 0;
   text-align: left;
   border: 0;
   border-bottom: 1px solid #e5e7eb;
@@ -35,11 +37,23 @@ main { max-width: 900px; margin: 0 auto; padding: 16px; }
   box-shadow: none;
 }
 
-.card-meta {
-  display: contents;
-  margin: 0;
-  font-size: 12px;
+.record-card:active {
+  transform: none;
+}
+
+.record-date {
   color: #6b7280;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.category {
+  color: #111827;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .record-title {
@@ -47,8 +61,8 @@ main { max-width: 900px; margin: 0 auto; padding: 16px; }
   margin: 0;
   font-size: 14px;
   font-weight: 600;
-  overflow: hidden;
   white-space: nowrap;
+  overflow: hidden;
   text-overflow: ellipsis;
 }
 
@@ -82,13 +96,3 @@ dialog::backdrop { background: rgba(0,0,0,.35); backdrop-filter: blur(2px); }
 .secondary-btn, .danger-btn { border: 0; border-radius: 10px; padding: 12px; font-weight: 700; }
 .secondary-btn { background: #e5e7eb; }
 .danger-btn { background: #fee2e2; color: #b91c1c; }
-
-@media (min-width: 700px) {
-  .topbar {
-    padding-left: max(24px, calc((100% - 900px)/2 + 16px));
-    padding-right: max(24px, calc((100% - 900px)/2 + 16px));
-  }
-}
-
-@media (min-width: 1000px) {
-}

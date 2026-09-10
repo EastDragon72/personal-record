@@ -11,7 +11,7 @@
 </head>
 <body>
 <div id="app">
-<header class="topbar"><h1>기록</h1><div class="top-actions"><button id="settingsBtn" class="small-icon-btn" title="Google Sheets 설정">⚙</button><button id="newBtn" class="icon-btn">＋</button></div></header>
+<header class="topbar"><h1>기록</h1><button id="newBtn" class="icon-btn">＋</button></header>
 <main>
 <section class="toolbar"><input id="searchInput" type="search" placeholder="제목, 내용, 메모 검색"><div id="categoryBar" class="chips"></div></section>
 <section id="recordList" class="record-list"></section><div id="emptyState" class="empty" hidden>기록이 없습니다.</div>
@@ -25,10 +25,6 @@
 <label>제목<input id="titleInput" maxlength="100" placeholder="제목"></label>
 <label>내용<textarea id="contentInput" rows="9" placeholder="내용을 입력하세요"></textarea></label>
 <label>메모<textarea id="memoInput" rows="3" placeholder="메모"></textarea></label>
-</form></dialog>
-<dialog id="settingsDialog"><form id="settingsForm" class="editor">
-<div class="editor-header"><button type="button" id="settingsCancelBtn" class="text-btn">취소</button><h2>Google Sheets</h2><button type="submit" class="save-btn">저장</button></div>
-<label>Apps Script 웹 앱 URL<input id="apiUrlInput" type="url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off"><small class="help-text">Google Apps Script에서 웹 앱으로 배포한 주소를 입력하세요.</small></label>
 </form></dialog>
 <dialog id="detailDialog"><div class="detail"><div class="editor-header"><button id="detailCloseBtn" class="text-btn">닫기</button><h2>기록</h2><span></span></div><div id="detailBody"></div><div class="detail-actions"><button id="editBtn" class="secondary-btn">수정</button><button id="deleteBtn" class="danger-btn">삭제</button></div></div></dialog>
 <script src="app.js"></script>

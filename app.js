@@ -3,7 +3,7 @@ const ACCOUNT_NAME_KEY = "personal-record-account-name";
 const ACCOUNT_EMAIL_KEY = "personal-record-account-email";
 const SHEET_URL_KEY = "personal-record-sheet-url";
 const APP_FILE_NAME = "개인 기록장";
-const APP_VERSION = "v11.4.3";
+const APP_VERSION = "v11.4.4";
 const STORAGE_KEY = "personal-records-v2";
 const GOOGLE_SHEET_TAB = "기록";
 const GOOGLE_SCOPES = "openid email profile https://www.googleapis.com/auth/spreadsheets";
@@ -12,7 +12,9 @@ let accountName = localStorage.getItem(ACCOUNT_NAME_KEY) || "";
 let accountEmail = localStorage.getItem(ACCOUNT_EMAIL_KEY) || "";
 let sheetUrl = localStorage.getItem(SHEET_URL_KEY) || "";
 let accessToken = "";
+let tokenExpiresAt = 0;
 let tokenClient = null;
+let silentTokenPromise = null;
 let records = loadLocal();
 let selectedCategory = "전체";
 let selectedId = null;
@@ -40,27 +42,36 @@ function initGoogleClient(){
 
 function requestGoogleToken(force=false){
   if(!initGoogleClient()) return Promise.reject(new Error("Google 로그인 기능을 불러오는 중입니다. 잠시 후 다시 눌러주세요."));
-  return new Promise((resolve,reject)=>{
+  if(!force && accessToken && Date.now() < tokenExpiresAt - 60000) return Promise.resolve(accessToken);
+  if(!force && silentTokenPromise) return silentTokenPromise;
+  const prompt=force?"select_account":"none";
+  const run=new Promise((resolve,reject)=>{
     tokenClient.callback=(resp)=>{
       if(resp.error){reject(new Error(resp.error_description||"Google 로그인에 실패했습니다."));return}
       accessToken=resp.access_token||"";
+      tokenExpiresAt=Date.now()+((Number(resp.expires_in)||3600)*1000);
       resolve(accessToken);
     };
-    // 이 호출은 버튼 클릭 이벤트 안에서 직접 실행되어야 모바일 팝업 차단을 피할 수 있습니다.
-    tokenClient.requestAccessToken({prompt:force?"select_account":"none"});
+    // force=true는 사용자가 누른 연결/전환 버튼에서만 호출합니다.
+    tokenClient.requestAccessToken({prompt});
   });
+  if(!force){
+    silentTokenPromise=run.finally(()=>{silentTokenPromise=null});
+    return silentTokenPromise;
+  }
+  return run;
 }
 
 async function getToken(force=false){
-  if(accessToken) return accessToken;
+  if(!force && accessToken && Date.now() < tokenExpiresAt - 60000) return accessToken;
   return requestGoogleToken(force);
 }
 
 async function googleFetch(url,options={}){
-  let token=await getToken(false).catch(()=>getToken(true));
+  let token=await getToken(false);
   const headers={...(options.headers||{}),Authorization:"Bearer "+token};
   let res=await fetch(url,{...options,headers,cache:"no-store"});
-  if(res.status===401){token=await getToken(true);res=await fetch(url,{...options,headers:{...(options.headers||{}),Authorization:"Bearer "+token},cache:"no-store"})}
+  if(res.status===401){accessToken="";tokenExpiresAt=0;token=await getToken(false);res=await fetch(url,{...options,headers:{...(options.headers||{}),Authorization:"Bearer "+token},cache:"no-store"})}
   if(!res.ok){let msg="Google 서버 오류 ("+res.status+")";try{const e=await res.json();msg=e.error?.message||msg}catch{}throw new Error(msg)}
   return res;
 }
@@ -171,10 +182,19 @@ $("deleteBtn").onclick=async()=>{const r=records.find(x=>x.id===selectedId);if(!
 
 async function init(){
   render();
-  // 앱 시작 시 OAuth를 요청하지 않습니다. GIS 라이브러리만 준비합니다.
+  // 저장된 계정/시트가 있으면 사용자 동작 없이 조용히 토큰을 갱신합니다.
+  // 성공하면 최신 Google Sheets 목록을 가져오고, 실패해도 기존 로컬 목록은 그대로 표시합니다.
   const started=Date.now();
-  const timer=setInterval(()=>{
-    if(initGoogleClient() || Date.now()-started>10000) clearInterval(timer);
+  const timer=setInterval(async()=>{
+    if(initGoogleClient()){
+      clearInterval(timer);
+      if(sheetUrl&&validSheetUrl(sheetUrl)){
+        try{ await getToken(false); await syncList(); render(); }
+        catch(err){ console.log("자동 Google 연결 생략:",err.message); }
+      }
+    }else if(Date.now()-started>10000){
+      clearInterval(timer);
+    }
   },100);
 }
 init();

@@ -90,7 +90,7 @@ dialog::backdrop { background: rgba(0,0,0,.35); backdrop-filter: blur(2px); }
 .detail h3 { margin: 5px 0 16px; font-size: 24px; }
 .detail-content, .detail-memo { white-space: pre-wrap; line-height: 1.7; }
 .detail-section { margin-top: 22px; }
-.detail-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 28px; }
+.detail-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 32px; }
 .secondary-btn, .danger-btn { border: 0; border-radius: 10px; padding: 12px; font-weight: 700; }
 .secondary-btn { background: #e5e7eb; }
 .danger-btn { background: #fee2e2; color: #b91c1c; }
@@ -119,3 +119,4 @@ dialog::backdrop { background: rgba(0,0,0,.35); backdrop-filter: blur(2px); }
 .app-info-card{margin-top:12px}
 
 .dialog-actions-note{}
+.settings-form > .dialog-actions { margin-top: 8px; }

@@ -3,7 +3,7 @@ const ACCOUNT_NAME_KEY = "personal-record-account-name";
 const ACCOUNT_EMAIL_KEY = "personal-record-account-email";
 const SHEET_URL_KEY = "personal-record-sheet-url";
 const APP_FILE_NAME = "개인 기록장";
-const APP_VERSION = "v11.0.0";
+const APP_VERSION = "v11.1.0";
 const STORAGE_KEY = "personal-records-v2";
 const GOOGLE_SHEET_TAB = "기록";
 const GOOGLE_SCOPES = "openid email profile https://www.googleapis.com/auth/spreadsheets";
@@ -138,9 +138,8 @@ $("deleteBtn").onclick=async()=>{const r=records.find(x=>x.id===selectedId);if(!
 
 async function init(){
   render();
-  if(sheetUrl&&validSheetUrl(sheetUrl)){
-    try{await syncList();render()}catch(err){console.warn("자동 동기화 실패",err)}
-  }
+  // 앱 시작 시에는 Google 로그인을 자동으로 띄우지 않습니다.
+  // 설정에서 사용자가 직접 계정 연결/전환을 눌렀을 때만 OAuth를 시작합니다.
 }
 init();
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(console.error));

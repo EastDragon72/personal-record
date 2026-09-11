@@ -77,6 +77,8 @@ dialog { border: 0; padding: 0; border-radius: 18px; width: min(680px, calc(100%
 dialog::backdrop { background: rgba(0,0,0,.35); backdrop-filter: blur(2px); }
 .editor, .detail { padding: 18px; }
 .editor-header { display: grid; grid-template-columns: 70px 1fr 70px; align-items: center; gap: 8px; margin-bottom: 20px; }
+.editor-header button { width: 100%; }
+.settings-header { margin-top: 12px; }
 .editor-header h2 { text-align: center; margin: 0; font-size: 18px; }
 .text-btn, .save-btn { border: 0; border-radius: 10px; padding: 11px 14px; font-weight: 700; }
 .text-btn { background: #e5e7eb; color: #111827; }
@@ -119,4 +121,3 @@ dialog::backdrop { background: rgba(0,0,0,.35); backdrop-filter: blur(2px); }
 .app-info-card{margin-top:12px}
 
 .dialog-actions-note{}
-.settings-form > .dialog-actions { margin-top: 8px; }

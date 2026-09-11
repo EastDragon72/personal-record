@@ -20,8 +20,7 @@
 </main>
 </div>
 <dialog id="editorDialog"><form id="recordForm" class="editor">
-<div class="editor-header"><span></span><h2 id="editorTitle">기록 작성</h2><span></span></div>
-<div class="dialog-actions"><button type="button" id="cancelBtn" class="text-btn">닫기</button><button type="submit" class="save-btn">저장</button></div>
+<div class="editor-header"><button type="button" id="cancelBtn" class="text-btn">닫기</button><h2 id="editorTitle">기록 작성</h2><button type="submit" class="save-btn">저장</button></div>
 <input type="hidden" id="recordId">
 <label>작성일<input id="dateInput" type="date" required></label>
 <label>분류<input id="categoryInput" list="categoryOptions" placeholder="기존 분류 선택 또는 신규 입력" required><datalist id="categoryOptions"></datalist></label>
@@ -30,10 +29,8 @@
 <label>메모<textarea id="memoInput" rows="3" placeholder="메모"></textarea></label>
 </form></dialog>
 <dialog id="settingsDialog"><form id="settingsForm" class="settings-form">
-<div class="editor-header"><span></span><h2>설정</h2><span></span></div>
-<div class="dialog-actions"><button type="button" id="settingsCancelBtn" class="text-btn">닫기</button><button type="submit" class="save-btn">저장</button></div>
+<div class="editor-header settings-header"><button type="button" id="settingsCancelBtn" class="text-btn">닫기</button><h2>설정</h2><button type="submit" class="save-btn">저장</button></div>
 <section class="backup-card">
-  <h3>Google 연결</h3>
   <label>Google 계정명<input id="accountNameInput" type="text" maxlength="50" placeholder="예: EastDragon" autocomplete="off"></label>
   <label>계정 이메일<input id="accountEmailInput" type="email" maxlength="100" placeholder="예: example@gmail.com" autocomplete="email"></label>
   <label>Google Sheets URL<input id="sheetUrlInput" type="url" placeholder="https://docs.google.com/spreadsheets/d/..." autocomplete="off"></label>
@@ -43,7 +40,7 @@
 <section class="backup-card app-info-card">
   <h3>앱 정보</h3>
   <div class="info-row"><span>파일명</span><strong>개인 기록장</strong></div>
-  <div class="info-row"><span>버전</span><strong>v11.4.1</strong></div>
+  <div class="info-row"><span>버전</span><strong>v11.4.3</strong></div>
 </section>
 <div class="settings-status" id="settingsStatus"></div>
 </form></dialog>

@@ -3,7 +3,7 @@ const ACCOUNT_NAME_KEY = "personal-record-account-name";
 const ACCOUNT_EMAIL_KEY = "personal-record-account-email";
 const SHEET_URL_KEY = "personal-record-sheet-url";
 const APP_FILE_NAME = "개인 기록장";
-const APP_VERSION = "v11.1.0";
+const APP_VERSION = "v11.2.0";
 const STORAGE_KEY = "personal-records-v2";
 const GOOGLE_SHEET_TAB = "기록";
 const GOOGLE_SCOPES = "openid email profile https://www.googleapis.com/auth/spreadsheets";
@@ -26,20 +26,34 @@ function formatDate(v){return v||""}
 function cats(){return [...new Set(records.map(r=>r.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ko"))}
 function validSheetUrl(url){return /^https:\/\/docs\.google\.com\/spreadsheets\/d\/[^\s/]+(?:\/[^\s]*)?$/.test(url)}
 function sheetIdFromUrl(url){const m=url.match(/\/spreadsheets\/d\/([^/]+)/);return m?m[1]:""}
-function waitForGoogle(){return new Promise((resolve,reject)=>{const start=Date.now();(function check(){if(window.google?.accounts?.oauth2)return resolve();if(Date.now()-start>10000)return reject(new Error("Google 로그인 기능을 불러오지 못했습니다."));setTimeout(check,100)})()})}
-
-async function getToken(force=false){
-  await waitForGoogle();
+function initGoogleClient(){
+  if(!window.google?.accounts?.oauth2) return false;
   if(!tokenClient){
-    tokenClient=google.accounts.oauth2.initTokenClient({client_id:GOOGLE_CLIENT_ID,scope:GOOGLE_SCOPES,callback:()=>{}});
+    tokenClient=google.accounts.oauth2.initTokenClient({
+      client_id:GOOGLE_CLIENT_ID,
+      scope:GOOGLE_SCOPES,
+      callback:()=>{}
+    });
   }
+  return true;
+}
+
+function requestGoogleToken(force=false){
+  if(!initGoogleClient()) return Promise.reject(new Error("Google 로그인 기능을 불러오는 중입니다. 잠시 후 다시 눌러주세요."));
   return new Promise((resolve,reject)=>{
     tokenClient.callback=(resp)=>{
       if(resp.error){reject(new Error(resp.error_description||"Google 로그인에 실패했습니다."));return}
-      accessToken=resp.access_token; resolve(accessToken);
+      accessToken=resp.access_token||"";
+      resolve(accessToken);
     };
+    // 이 호출은 버튼 클릭 이벤트 안에서 직접 실행되어야 모바일 팝업 차단을 피할 수 있습니다.
     tokenClient.requestAccessToken({prompt:force?"select_account":"none"});
   });
+}
+
+async function getToken(force=false){
+  if(accessToken) return accessToken;
+  return requestGoogleToken(force);
 }
 
 async function googleFetch(url,options={}){
@@ -99,10 +113,11 @@ async function googleDelete(id){
 
 async function connectGoogle(force=true){
   const url=$("sheetUrlInput").value.trim().replace(/\s+/g,"");
-  if(!validSheetUrl(url)){$("settingsStatus").textContent="Google Sheets URL을 확인해주세요.";return false}
+  if(!validSheetUrl(url)){$("settingsStatus").textContent="Google Sheets URL을 먼저 입력해주세요.";return false}
   sheetUrl=url; $("settingsStatus").textContent="Google 계정 연결 중...";
   try{
-    await getToken(force);
+    // 사용자 버튼 클릭 직후 OAuth 팝업을 호출합니다.
+    await requestGoogleToken(force);
     const user=await googleUser();
     accountEmail=user.email||accountEmail;
     if(!$("accountNameInput").value.trim()) accountName=user.name||user.given_name||"";
@@ -138,8 +153,11 @@ $("deleteBtn").onclick=async()=>{const r=records.find(x=>x.id===selectedId);if(!
 
 async function init(){
   render();
-  // 앱 시작 시에는 Google 로그인을 자동으로 띄우지 않습니다.
-  // 설정에서 사용자가 직접 계정 연결/전환을 눌렀을 때만 OAuth를 시작합니다.
+  // 앱 시작 시 OAuth를 요청하지 않습니다. GIS 라이브러리만 준비합니다.
+  const started=Date.now();
+  const timer=setInterval(()=>{
+    if(initGoogleClient() || Date.now()-started>10000) clearInterval(timer);
+  },100);
 }
 init();
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(console.error));

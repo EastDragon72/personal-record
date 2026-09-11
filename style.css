@@ -78,8 +78,9 @@ dialog::backdrop { background: rgba(0,0,0,.35); backdrop-filter: blur(2px); }
 .editor, .detail { padding: 18px; }
 .editor-header { display: grid; grid-template-columns: 70px 1fr 70px; align-items: center; gap: 8px; margin-bottom: 20px; }
 .editor-header h2 { text-align: center; margin: 0; font-size: 18px; }
-.text-btn, .save-btn { border: 0; background: transparent; padding: 8px 0; }
-.save-btn { font-weight: 700; }
+.text-btn, .save-btn { border: 0; border-radius: 10px; padding: 11px 14px; font-weight: 700; }
+.text-btn { background: #e5e7eb; color: #111827; }
+.save-btn { background: #111827; color: white; }
 .editor label { display: block; font-size: 14px; font-weight: 700; margin: 16px 0; }
 .editor input, .editor textarea { display: block; width: 100%; margin-top: 7px; border: 1px solid #d1d5db; border-radius: 10px; padding: 11px 12px; background: white; outline: none; }
 .editor textarea { resize: vertical; min-height: 80px; }
@@ -89,7 +90,7 @@ dialog::backdrop { background: rgba(0,0,0,.35); backdrop-filter: blur(2px); }
 .detail h3 { margin: 5px 0 16px; font-size: 24px; }
 .detail-content, .detail-memo { white-space: pre-wrap; line-height: 1.7; }
 .detail-section { margin-top: 22px; }
-.detail-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 28px; }
+.detail-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 28px; }
 .secondary-btn, .danger-btn { border: 0; border-radius: 10px; padding: 12px; font-weight: 700; }
 .secondary-btn { background: #e5e7eb; }
 .danger-btn { background: #fee2e2; color: #b91c1c; }
@@ -116,3 +117,5 @@ dialog::backdrop { background: rgba(0,0,0,.35); backdrop-filter: blur(2px); }
 .backup-card{border:1px solid #e5e7eb;border-radius:14px;padding:14px;margin:12px 0;background:#fff}.backup-card h3{margin:0 0 6px;font-size:15px}.secondary-backup{background:#fafafa}.primary-btn{width:100%;border:0;border-radius:10px;padding:12px;background:#111827;color:#fff;font-weight:700;margin:4px 0 10px}.google-account{min-height:18px;margin:2px 0 10px;color:#2563eb;font-size:12px}.settings-form select{display:block;width:100%;box-sizing:border-box;margin-top:6px;padding:11px 12px;border:1px solid #d1d5db;border-radius:10px;font:inherit;background:white}
 .info-row{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-top:1px solid #e5e7eb;font-size:13px}.info-row:first-of-type{border-top:0}.info-row span{color:#6b7280}.info-row strong{color:#111827;font-weight:600;text-align:right}
 .app-info-card{margin-top:12px}
+
+.dialog-actions-note{}

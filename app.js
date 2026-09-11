@@ -3,7 +3,7 @@ const ACCOUNT_NAME_KEY = "personal-record-account-name";
 const ACCOUNT_EMAIL_KEY = "personal-record-account-email";
 const SHEET_URL_KEY = "personal-record-sheet-url";
 const APP_FILE_NAME = "개인 기록장";
-const APP_VERSION = "v11.2.0";
+const APP_VERSION = "v11.3.0";
 const STORAGE_KEY = "personal-records-v2";
 const GOOGLE_SHEET_TAB = "기록";
 const GOOGLE_SCOPES = "openid email profile https://www.googleapis.com/auth/spreadsheets";
@@ -144,7 +144,25 @@ $("settingsBtn").onclick=openSettings;
 $("settingsCancelBtn").onclick=()=>$("settingsDialog").close();
 $("connectGoogleBtn").onclick=()=>connectGoogle(true);
 $("testBackupBtn").onclick=async()=>{if(await connectGoogle(false)){try{const data=await googleList();$("settingsStatus").textContent=`연결 성공 · 기록 ${data.length}건`}catch(err){$("settingsStatus").textContent="연결 실패: "+err.message}}};
-$("settingsForm").onsubmit=async e=>{e.preventDefault();const ok=await connectGoogle(false);if(!ok)return;accountName=$("accountNameInput").value.trim()||accountName;localStorage.setItem(ACCOUNT_NAME_KEY,accountName);localStorage.setItem(ACCOUNT_EMAIL_KEY,accountEmail);localStorage.setItem(SHEET_URL_KEY,sheetUrl);try{await syncList();render();$("settingsDialog").close()}catch(err){$("settingsStatus").textContent="시트 읽기 실패: "+err.message}};
+$("settingsForm").onsubmit=async e=>{
+  e.preventDefault();
+  const url=$("sheetUrlInput").value.trim().replace(/\s+/g,"");
+  if(!validSheetUrl(url)){ $("settingsStatus").textContent="Google Sheets URL을 확인해주세요."; return; }
+  accountName=$("accountNameInput").value.trim();
+  accountEmail=$("accountEmailInput").value.trim()||accountEmail;
+  sheetUrl=url;
+  localStorage.setItem(ACCOUNT_NAME_KEY,accountName);
+  localStorage.setItem(ACCOUNT_EMAIL_KEY,accountEmail);
+  localStorage.setItem(SHEET_URL_KEY,sheetUrl);
+  // 이미 연결된 경우에만 시트를 확인합니다. 저장 버튼에서는 OAuth를 다시 호출하지 않습니다.
+  if(accessToken){
+    $("settingsStatus").textContent="저장 중...";
+    try{ await ensureSheet(); await syncList(); render(); $("settingsDialog").close(); }
+    catch(err){ $("settingsStatus").textContent="시트 저장 실패: "+err.message; }
+  }else{
+    $("settingsDialog").close();
+  }
+};
 $("newBtn").onclick=()=>openEditor();$("cancelBtn").onclick=()=>$("editorDialog").close();$("detailCloseBtn").onclick=()=>$("detailDialog").close();$("searchInput").oninput=renderList;
 $("categoryBar").onclick=e=>{const b=e.target.closest("[data-category]");if(!b)return;selectedCategory=b.dataset.category;render()};$("recordList").onclick=e=>{const b=e.target.closest("[data-id]");if(b)openDetail(b.dataset.id)};
 $("recordForm").onsubmit=async e=>{e.preventDefault();const id=$("recordId").value;const data={id:id||crypto.randomUUID(),date:$("dateInput").value,category:$("categoryInput").value.trim(),title:$("titleInput").value.trim(),content:$("contentInput").value.trim(),memo:$("memoInput").value.trim()};if(!data.category)return alert("분류를 입력해주세요.");if(!data.title&&!data.content&&!data.memo)return alert("제목, 내용 또는 메모 중 하나는 입력해주세요.");try{if(!sheetUrl)throw new Error("설정에서 Google 계정을 연결해주세요.");if(id)await googleUpdate(data);else await googleCreate(data);records=id?records.map(r=>r.id===id?data:r):[...records,data];saveLocal();$("editorDialog").close();render()}catch(err){alert("저장 실패: "+err.message)}};

@@ -4,7 +4,7 @@
 const SUPABASE_URL = "https://sxoxtdwipxdxkmmdfskb.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_9mDd0oL0hlTtfxN4gXOH-A_S2grqf8K";
 const APP_FILE_NAME = "개인 기록장";
-const APP_VERSION = "v12.2.0";
+const APP_VERSION = "v12.3.0";
 const STORAGE_KEY = "personal-records-v2";
 const ACCOUNT_NAME_KEY = "personal-record-account-name";
 const ACCOUNT_EMAIL_KEY = "personal-record-account-email";
@@ -42,7 +42,13 @@ async function supabaseUpdate(data){if(!currentUser)await loadUser();const {erro
 async function supabaseDelete(id){if(!currentUser)await loadUser();const {error}=await supabaseClient.from("notes").delete().eq("id",id).eq("user_id",currentUser.id);if(error)throw error}
 async function syncList(){if(!initSupabase()||!currentUser)return;records=await supabaseList();saveLocal();render()}
 
-function renderCategories(){const list=["전체",...cats()];$("categoryBar").innerHTML=list.map(c=>`<button class="chip ${c===selectedCategory?"active":""}" data-category="${esc(c)}">${esc(c)}</button>`).join("");$("categoryOptions").innerHTML=cats().map(c=>`<option value="${esc(c)}"></option>`).join("")}
+function renderCategories(){
+  const list=["전체",...cats()];
+  $("categoryBar").innerHTML=list.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
+  $("categoryBar").value=list.includes(selectedCategory)?selectedCategory:"전체";
+  if(!list.includes(selectedCategory))selectedCategory="전체";
+  $("categoryOptions").innerHTML=cats().map(c=>`<option value="${esc(c)}"></option>`).join("")
+}
 function filtered(){const q=$("searchInput").value.trim().toLowerCase();return records.filter(r=>(selectedCategory==="전체"||r.category===selectedCategory)&&(!q||[r.category,r.title,r.content,r.memo].some(v=>(v||"").toLowerCase().includes(q)))).sort((a,b)=>(b.date||"").localeCompare(a.date||"")||String(b.id).localeCompare(String(a.id)))}
 function renderList(){const data=filtered();const header='<div class="record-header" aria-hidden="true"><span>작성일</span><span>분류</span><span>제목</span></div>';const rows=data.map(r=>`<button class="record-card" data-id="${esc(r.id)}"><span class="record-date">${esc(formatDate(r.date))}</span><span class="category">${esc(r.category||"")}</span><span class="record-title">${esc(r.title||"제목 없음")}</span></button>`).join("");$("recordList").innerHTML=data.length?header+rows:"";$("emptyState").hidden=data.length!==0}
 function render(){renderCategories();renderList()}
@@ -57,7 +63,7 @@ $("connectGoogleBtn").onclick=async()=>{try{await signInGoogle(true)}catch(err){
 $("testBackupBtn").onclick=async()=>{try{if(!currentUser)await loadUser();if(!currentUser){$("settingsStatus").textContent="Google 계정으로 로그인해주세요.";return}const data=await supabaseList();records=data;saveLocal();render();$("settingsStatus").textContent=`연결 성공 · 기록 ${data.length}건`}catch(err){$("settingsStatus").textContent="연결 실패: "+err.message}};
 $("settingsForm").onsubmit=e=>{e.preventDefault();accountName=$("accountNameInput").value.trim();localStorage.setItem(ACCOUNT_NAME_KEY,accountName);localStorage.setItem(ACCOUNT_EMAIL_KEY,accountEmail);$("settingsStatus").textContent=currentUser?"저장됨":"저장됨 · Google 로그인 필요";setTimeout(()=>$("settingsDialog").close(),250)};
 $("newBtn").onclick=()=>openEditor();$("cancelBtn").onclick=()=>$("editorDialog").close();$("detailCloseBtn").onclick=()=>$("detailDialog").close();$("searchInput").oninput=renderList;
-$("categoryBar").onclick=e=>{const b=e.target.closest("[data-category]");if(!b)return;selectedCategory=b.dataset.category;render()};$("recordList").onclick=e=>{const b=e.target.closest("[data-id]");if(b)openDetail(b.dataset.id)};
+$("categoryBar").onchange=e=>{selectedCategory=e.target.value;renderList()};$("recordList").onclick=e=>{const b=e.target.closest("[data-id]");if(b)openDetail(b.dataset.id)};
 $("recordForm").onsubmit=async e=>{e.preventDefault();const id=$("recordId").value;const data={id:id||crypto.randomUUID(),date:$("dateInput").value,category:$("categoryInput").value.trim(),title:$("titleInput").value.trim(),content:$("contentInput").value.trim(),memo:$("memoInput").value.trim()};if(!data.category)return alert("분류를 입력해주세요.");if(!data.title&&!data.content&&!data.memo)return alert("제목, 내용 또는 메모 중 하나는 입력해주세요.");try{if(!currentUser)await loadUser();if(!currentUser)throw new Error("설정에서 Google 계정을 연결해주세요.");if(id)await supabaseUpdate(data);else await supabaseCreate(data);records=id?records.map(r=>r.id===id?data:r):[...records,data];saveLocal();$("editorDialog").close();render()}catch(err){alert("저장 실패: "+err.message)}};
 $("editBtn").onclick=()=>{const r=records.find(x=>x.id===selectedId);$("detailDialog").close();if(r)openEditor(r)};
 $("deleteBtn").onclick=async()=>{const r=records.find(x=>x.id===selectedId);if(!r)return;if(!confirm(`"${r.title||"제목 없음"}" 기록을 삭제할까요?`))return;try{if(!currentUser)await loadUser();if(!currentUser)throw new Error("Google 계정으로 로그인해주세요.");await supabaseDelete(r.id);records=records.filter(x=>x.id!==selectedId);saveLocal();$("detailDialog").close();render()}catch(err){alert("삭제 실패: "+err.message)}};

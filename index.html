@@ -9,7 +9,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="style.css">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div id="app">
@@ -32,18 +32,17 @@
 <div class="editor-header settings-header"><button type="button" id="settingsCancelBtn" class="text-btn">닫기</button><h2>설정</h2><button type="submit" class="save-btn">저장</button></div>
 <section class="backup-card">
   <label>Google 계정명<input id="accountNameInput" type="text" maxlength="50" placeholder="예: EastDragon" autocomplete="off"></label>
-  <label>계정 이메일<input id="accountEmailInput" type="email" maxlength="100" placeholder="예: example@gmail.com" autocomplete="email"></label>
-  <label>Google Sheets URL<input id="sheetUrlInput" type="url" placeholder="https://docs.google.com/spreadsheets/d/..." autocomplete="off"></label>
+  <label>계정 이메일<input id="accountEmailInput" type="email" maxlength="100" placeholder="Google 로그인 후 표시" autocomplete="email" readonly></label>
   <button type="button" id="connectGoogleBtn" class="secondary-btn settings-test">Google 계정 연결 / 전환</button>
   <button type="button" id="testBackupBtn" class="secondary-btn settings-test">연결 테스트</button>
 </section>
 <section class="backup-card app-info-card">
   <h3>앱 정보</h3>
   <div class="info-row"><span>파일명</span><strong>개인 기록장</strong></div>
-  <div class="info-row"><span>버전</span><strong>v11.4.4</strong></div>
+  <div class="info-row"><span>버전</span><strong>v12.2.0</strong></div>
 </section>
 <div class="settings-status" id="settingsStatus"></div>
 </form></dialog>
 <dialog id="detailDialog"><div class="detail"><div class="editor-header"><span></span><h2>기록장</h2><span></span></div><div id="detailBody"></div><div class="detail-actions"><button id="detailCloseBtn" class="secondary-btn">닫기</button><button id="editBtn" class="secondary-btn">수정</button><button id="deleteBtn" class="danger-btn">삭제</button></div></div></dialog>
-<script src="app.js?v=15"></script>
+<script src="app.js?v=22"></script>
 </body></html>
